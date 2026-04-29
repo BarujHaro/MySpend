@@ -1,0 +1,14 @@
+﻿@using MySpend.Models.Entities
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@model Expense
+
+<div class="text-center">
+    <h1 class="display-4">Que tal?</h1>
+    <p>Intento aprender c#</p>
+    <a asp-controller="Home" asp-action="Expenses" class="btn btn-primary">Overview (Expenses)</a>
+    <a asp-controller="Home" asp-action="CreateEditExpense" class="btn btn-secondary">Create</a>
+</div>
+

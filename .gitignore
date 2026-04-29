@@ -1,0 +1,17 @@
+./MySpend/MySpend/bin/
+./MySpend/MySpend/bin
+/MySpend/MySpend/bin/
+/MySpend/MySpend/bin
+
+./MySpend/MySpend/obj/
+./MySpend/MySpend/obj
+/MySpend/MySpend/obj/
+/MySpend/MySpend/obj
+
+.vs/
+./MySpend/vs/
+.idea/
+*.user
+*.suo
+
+proceso.txt
