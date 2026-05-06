@@ -6,12 +6,20 @@ namespace MySpend.Service
 {
     public class ExpenseService
     {
+        /*
+         Aquí reside la lógica de negocio y acceso a datos. 
+        Este archivo interactúa directamente con la base de datos
+        a través de Entity Framework
+         */
         private readonly MySpendDbContext _context;
-
+         
         public ExpenseService(MySpendDbContext context)
         {
             _context = context;
         }
+        //Ejecuta una consulta SQL filtrada por el usuario.
+        //Task Indica que e suna funcion asincrona , no devuelve datos de inmediato
+        //List<Expense> Es lo que se obtendra cuandoi la tarea termine
 
         public async Task<List<Expense>> GetExpensesAsync(int userId)
         {

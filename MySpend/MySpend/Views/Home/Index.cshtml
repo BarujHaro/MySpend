@@ -6,9 +6,18 @@
 @model Expense
 
 <div class="text-center">
-    <h1 class="display-4">Que tal?</h1>
-    <p>Intento aprender c#</p>
-    <a asp-controller="Home" asp-action="Expenses" class="btn btn-primary">Overview (Expenses)</a>
-    <a asp-controller="Home" asp-action="CreateEditExpense" class="btn btn-secondary">Create</a>
+    <h1 class="display-4">Expenses</h1>
+    <p>Track your expenses and do smart decisions</p>
+    <a asp-controller="Expenses" asp-action="Expenses" class="btn btn-primary">Overview (Expenses)</a>
+    <a asp-controller="Expenses" asp-action="CreateEditExpense" class="btn btn-secondary">Create</a>
 </div>
+
+@* 
+    <a asp-controller="Expenses" asp-action="Expenses" class="btn btn-primary">Overview (Expenses)</a>
+
+       Este enlace usa 'Tag Helpers' de ASP.NET Core:
+       - asp-controller: Indica que debe buscar el 'ExpensesController'.
+       - asp-action: Indica que debe ejecutar el método (acción) 'Expenses' dentro de ese controlador.
+       - Al hacer clic, genera automáticamente la URL correcta (ej: /Expenses/Expenses) y redirige al usuario.
+*@
 
