@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using MySpend.Data;
 using MySpend.Controllers;
 using MySpend.Service;
-using MySpend.Data;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
+
 
 namespace MySpend
 {
@@ -15,8 +17,11 @@ namespace MySpend
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddScoped<ExpenseService>();
+
             builder.Services.AddDbContext<MySpendDbContext>(options =>
-                options.UseInMemoryDatabase("MySpendDb")
+                options.UseNpgsql(
+                    builder.Configuration.GetConnectionString("DefaultConnection")
+                )
             );
 
 

@@ -17,9 +17,8 @@ namespace MySpend.Controllers
         {
             _expenseService = expenseService;
         }
-
-        // Simulación de usuario (luego vendrá del login)
         private int CurrentUserId => 1;
+
 
 
         // GET: Expenses

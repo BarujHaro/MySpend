@@ -1,16 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MySpend.Models.Entities;
 
+
 namespace MySpend.Data
 {
     public class MySpendDbContext : DbContext
     {
-        public DbSet<Expense> Expenses { get; set; }
-        //public DbSet<User> Users { get; set; }
+        public MySpendDbContext(DbContextOptions<MySpendDbContext> options)
+            : base(options) { }
 
-        public MySpendDbContext(DbContextOptions<MySpendDbContext> options) : base(options)
-        {
-
-        }
+        public DbSet<User> Users => Set<User>();
+        public DbSet<Category> Categories => Set<Category>();
+        public DbSet<Expense> Expenses => Set<Expense>();
     }
 }
