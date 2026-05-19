@@ -8,8 +8,7 @@
 <div class="text-center">
     <h1 class="display-4">Expenses</h1>
     <p>Track your expenses and do smart decisions</p>
-    <a asp-controller="Expenses" asp-action="Expenses" class="btn btn-primary">Overview (Expenses)</a>
-    <a asp-controller="Expenses" asp-action="CreateEditExpense" class="btn btn-secondary">Create</a>
+
 </div>
 
 @* 
@@ -19,5 +18,11 @@
        - asp-controller: Indica que debe buscar el 'ExpensesController'.
        - asp-action: Indica que debe ejecutar el método (acción) 'Expenses' dentro de ese controlador.
        - Al hacer clic, genera automáticamente la URL correcta (ej: /Expenses/Expenses) y redirige al usuario.
+
+           <a asp-controller="Expenses" asp-action="Expenses" class="btn btn-primary">Overview (Expenses)</a>
+    <a asp-controller="Expenses" asp-action="CreateEditExpense" class="btn btn-secondary">Create</a>
+    <a asp-controller="User" asp-action="Login">Login</a>
+    <a asp-controller="User" asp-action="Register">Register</a>
+    <a asp-controller="User" asp-action="Logout">Logout</a>
 *@
 

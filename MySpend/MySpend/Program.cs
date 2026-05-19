@@ -14,10 +14,19 @@ namespace MySpend
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
+            // MVC
             builder.Services.AddControllersWithViews();
-            builder.Services.AddScoped<ExpenseService>();
 
+            //SESSION
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(0); // session time 60 minutes
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
+            builder.Services.AddScoped<ExpenseService>();
+            // DB CONTEXT (PostgreSQL)
             builder.Services.AddDbContext<MySpendDbContext>(options =>
                 options.UseNpgsql(
                     builder.Configuration.GetConnectionString("DefaultConnection")
@@ -41,6 +50,8 @@ namespace MySpend
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.MapControllerRoute(
                 name: "default",

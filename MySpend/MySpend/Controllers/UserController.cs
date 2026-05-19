@@ -9,12 +9,22 @@ namespace MySpend.Controllers
     public class UserController : Controller
     {
 
+        /*
+         The `_context` is the direct bridge between your C# code and your SQL Server database. 
+        It's an instance of something called Entity Framework Core (an ORM).
+
+        Instead of writing pure SQL code like `SELECT * FROM Users WHERE Email = ...`, the `_context` lets you communicate with the database using C#.
+         */
         private readonly MySpendDbContext _context;
+
 
         public UserController(MySpendDbContext context)
         {
             _context = context;
         }
+
+
+        //Return View() look fot a view with the same name as the function
         //GET
         public IActionResult Register()
         {
@@ -28,7 +38,7 @@ namespace MySpend.Controllers
 
 
         //POST
-        [HttpPost] //Only respons to POST requests
+        [HttpPost] //Only respons to POST requests, a label to tell the program that is going to receive data
         public IActionResult Register(string name, string email, string password)
         {
 
@@ -45,6 +55,7 @@ namespace MySpend.Controllers
             //Map data: Create a object user
             var user = new User
             {
+                Name = name,
                 Email = email,
                 PasswordHash = PasswordHelper.Hash(password)
             };
@@ -58,13 +69,32 @@ namespace MySpend.Controllers
 
             return RedirectToAction("Login");
 
+        }
 
+        [HttpPost]
+        public IActionResult Login(string email, string password)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
 
+            if (user == null || !PasswordHelper.Verify(password, user.PasswordHash))
+            {
+                ModelState.AddModelError("", "Email o contraseña incorrectos");
+                return View();
+            }
+
+            //Save session
+            HttpContext.Session.SetInt32("UserId", user.Id);
+            HttpContext.Session.SetString("UserName", user.Name);
+
+            return RedirectToAction("Expenses", "Expenses");
         }
 
 
-
-
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login", "Account");
+        }
 
     }
 }

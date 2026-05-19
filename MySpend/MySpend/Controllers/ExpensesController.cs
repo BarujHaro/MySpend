@@ -17,9 +17,9 @@ namespace MySpend.Controllers
         {
             _expenseService = expenseService;
         }
-        private int CurrentUserId => 1;
+   
 
-
+        private int? CurrentUserId => HttpContext.Session.GetInt32("UserId");
 
         // GET: Expenses
         //Llama al servicio para obtener la lista de gastos del usuario actual
@@ -28,7 +28,10 @@ namespace MySpend.Controllers
         //IActionResult= Es una interfaz que define lo que el controlador le devuelve al navegador, en este caso devuelve una vista
         public async Task<IActionResult> Expenses()
         {
-            var expenses = await _expenseService.GetExpensesAsync(CurrentUserId);
+            if (CurrentUserId == null)
+                return RedirectToAction("Login", "Account");
+
+            var expenses = await _expenseService.GetExpensesAsync(CurrentUserId.Value);
 
             ViewBag.TotalExpenses = expenses.Sum(e => e.Value);
 
@@ -40,10 +43,13 @@ namespace MySpend.Controllers
         //si el id existe, busca el gasto en la base de datos para editarlo
         public async Task<IActionResult> CreateEditExpense(int? id)
         {
+            if (CurrentUserId == null)
+                return RedirectToAction("Login", "Account");
+
             if (id == null)
                 return View(new Expense());
 
-            var expense = await _expenseService.GetByIdAsync(id.Value, CurrentUserId);
+            var expense = await _expenseService.GetByIdAsync(id.Value, CurrentUserId.Value);
             
             if (expense == null)
                 return NotFound();
