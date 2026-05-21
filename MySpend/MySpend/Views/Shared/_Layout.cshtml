@@ -2,8 +2,9 @@
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
-    var userId = HttpContextAccessor.HttpContext.Session.GetInt32("UserId");
-    var userName = HttpContextAccessor.HttpContext.Session.GetString("UserName");
+    var context = HttpContextAccessor.HttpContext;
+    int? userId = context?.Session.GetInt32("UserId");
+    string? userName = context?.Session.GetString("UserName");
 }
 
 <!DOCTYPE html>
@@ -50,7 +51,7 @@
                             </li>
 
                             <li class="nav-item">
-                                <span class="nav-link text-muted">Hello, @userName</span>
+                                <span class="nav-link text-muted">@userName</span>
                             </li>
 
                             <li class="nav-item">

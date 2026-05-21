@@ -16,11 +16,12 @@ namespace MySpend
             // Add services to the container.
             // MVC
             builder.Services.AddControllersWithViews();
-
+            builder.Services.AddHttpContextAccessor();
             //SESSION
+            builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(0); // session time 60 minutes
+                options.IdleTimeout = TimeSpan.FromMinutes(60); // session time 60 minutes
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });

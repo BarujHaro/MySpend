@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MySpend.Data;
 using MySpend.Models.Entities;
+using MySpend.Models.ViewModels;
 using MySpend.Support;
 
 namespace MySpend.Controllers
@@ -39,15 +40,17 @@ namespace MySpend.Controllers
 
         //POST
         [HttpPost] //Only respons to POST requests, a label to tell the program that is going to receive data
-        public IActionResult Register(string name, string email, string password)
+        public IActionResult Register(RegisterViewModel model)
         {
+            if (!ModelState.IsValid)
+                return View(model);
 
             //Duplicates validation: Search in the table 'Users'  if a user exist with that email
-            if (_context.Users.Any(u => u.Email == email))
+            if (_context.Users.Any(u => u.Email == model.Email))
             {
                 
                 //If the email exists, it adds an error tho the model state to show it in the view
-                ModelState.AddModelError("", "Invalid email");
+                ModelState.AddModelError("Email", "Invalid email");
                 return View();
             }
 
@@ -55,9 +58,9 @@ namespace MySpend.Controllers
             //Map data: Create a object user
             var user = new User
             {
-                Name = name,
-                Email = email,
-                PasswordHash = PasswordHelper.Hash(password)
+                Name = model.Name,
+                Email = model.Email,
+                PasswordHash = PasswordHelper.Hash(model.Password)
             };
 
          
@@ -93,7 +96,7 @@ namespace MySpend.Controllers
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
-            return RedirectToAction("Login", "Account");
+            return RedirectToAction("Login", "User");
         }
 
     }

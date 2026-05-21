@@ -29,7 +29,7 @@ namespace MySpend.Controllers
         public async Task<IActionResult> Expenses()
         {
             if (CurrentUserId == null)
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "User");
 
             var expenses = await _expenseService.GetExpensesAsync(CurrentUserId.Value);
 
@@ -44,7 +44,7 @@ namespace MySpend.Controllers
         public async Task<IActionResult> CreateEditExpense(int? id)
         {
             if (CurrentUserId == null)
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "User");
 
             if (id == null)
                 return View(new Expense());
@@ -64,11 +64,14 @@ namespace MySpend.Controllers
         //recibe datos del formulario
         public async Task<IActionResult> CreateEditExpense(Expense model)
         {
+            if (CurrentUserId == null)
+                return RedirectToAction("Login", "User");
+
             //verifica que los datos cumplan con las reglas
             if (!ModelState.IsValid)
                 return View(model);
 
-            model.UserId = CurrentUserId;
+            model.UserId = CurrentUserId.Value;
 
             await _expenseService.SaveAsync(model);
             return RedirectToAction(nameof(Expenses));
@@ -78,8 +81,11 @@ namespace MySpend.Controllers
         // GET: Expenses/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            await _expenseService.DeleteAsync(id, CurrentUserId);
-            return RedirectToAction(nameof(Expenses));
+            if (CurrentUserId == null)
+                return RedirectToAction("Login", "User");
+            if(CurrentUserId.Value!=null)
+                await _expenseService.DeleteAsync(id, CurrentUserId.Value);
+                return RedirectToAction(nameof(Expenses));
         }
     }
 }
