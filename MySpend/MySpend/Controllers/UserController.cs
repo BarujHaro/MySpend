@@ -4,6 +4,7 @@ using MySpend.Data;
 using MySpend.Models.Entities;
 using MySpend.Models.ViewModels;
 using MySpend.Support;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace MySpend.Controllers
 {
@@ -32,8 +33,13 @@ namespace MySpend.Controllers
             return View();
         }
 
-        public IActionResult Login()
+        [HttpGet]
+        public IActionResult Login(string? error)
         {
+            if (error == "rate-limit")
+            {
+                ModelState.AddModelError("", "Many tries, please, try some time later.");
+            }
             return View();
         }
 
@@ -75,13 +81,14 @@ namespace MySpend.Controllers
         }
 
         [HttpPost]
+        [EnableRateLimiting("LoginPolicy")]
         public IActionResult Login(string email, string password)
         {
             var user = _context.Users.FirstOrDefault(u => u.Email == email);
 
             if (user == null || !PasswordHelper.Verify(password, user.PasswordHash))
             {
-                ModelState.AddModelError("", "Email o contraseña incorrectos");
+                ModelState.AddModelError("", "Email or password are incorrects");
                 return View();
             }
 

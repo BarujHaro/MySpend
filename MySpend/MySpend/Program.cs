@@ -3,7 +3,8 @@ using MySpend.Data;
 using MySpend.Controllers;
 using MySpend.Service;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
-
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace MySpend
 {
@@ -34,6 +35,28 @@ namespace MySpend
                 )
             );
 
+            //Rate limiting configuration
+            builder.Services.AddRateLimiter(options =>
+            {
+                // Policy definition
+                options.AddFixedWindowLimiter(policyName: "LoginPolicy", fixedOptions =>
+                {
+                    fixedOptions.PermitLimit = 5; // Max 5
+                    fixedOptions.Window = TimeSpan.FromMinutes(3); // In 3 minute
+                    fixedOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                    fixedOptions.QueueLimit = 0; // immediate block
+                });
+
+              
+                options.OnRejected = async (context, token) =>
+                {
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    context.HttpContext.Response.Redirect("/User/Login?error=rate-limit");
+                    await Task.CompletedTask;
+                    //await context.HttpContext.Response.WriteAsync("Many tries, please, try some time later.", cancellationToken: token);
+                };
+            });
+
 
             var app = builder.Build();
 
@@ -45,11 +68,13 @@ namespace MySpend
                 app.UseHsts();
             }
 
+           
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseRateLimiter();
             app.UseAuthorization();
 
             app.UseSession();
