@@ -22,7 +22,7 @@ namespace MySpend.Models.Entities
 
         public decimal Value { get; set; }
         public string Description { get; set; } = string.Empty;
-        public DateTime Date { get; set; } = DateTime.UtcNow;
+        public DateTime? Date { get; set; } = DateTime.UtcNow;
 
     }
 }

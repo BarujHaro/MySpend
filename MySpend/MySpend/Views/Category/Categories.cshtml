@@ -1,12 +1,12 @@
 ﻿@using MySpend.Models.Entities
 @{
-    ViewData["Title"] = "Expenses";
+    ViewData["Title"] = "Categories";
 }
 
-@model List<Expense>
+@model List<Category>
 
 <div class="text-center">
-    <h1 class="display-4">Expenses</h1>
+    <h1 class="display-4">Categories</h1>
     @if (TempData["ErrorMessage"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -23,47 +23,38 @@
         </div>
     }
     <hr />
-    <h3>Total expenses $@ViewBag.Expenses</h3>
-   
 
-    <a asp-action="CreateEditExpense">Add</a>
+    <a asp-action="CreateEditCategories">Add</a>
     <table>
         <thead>
             <tr>
                 <th>Id</th>
-                <th>Value</th>
-                <th>Description</th>
                 <th>Category</th>
             </tr>
         </thead>
         <tbody>
             @{
-                foreach(var expense in Model)
+                foreach (var category in Model)
                 {
                     <tr>
                         <td>
-                        @expense.Id
+                            @category.Id
                         </td>
                         <td>
-                            @expense.Value
+                            @category.Name
+                        </td>
+                        
+                        <td>
+                            <a asp-action="CreateEditCategories" asp-route-id="@category.Id">Edit</a>
                         </td>
                         <td>
-                            @expense.Description
-                        </td>
-                        <td>
-                            @expense.Category
-                        </td>
-                        <td>
-                            <a asp-action="CreateEditExpense" asp-route-id="@expense.Id">Edit</a>
-                        </td>
-                        <td>
-                            <a asp-action="DeleteExpense" asp-route-id="@expense.Id" class="btn btn-sm btn-danger"
-                               onclick="return confirm('Are you sure you want to delete this expense?');">Delete</a>
+                            <a asp-action="DeleteCategory" asp-route-id="@category.Id" class="btn btn-sm btn-danger"
+                               onclick="return confirm('Are you sure you want to delete this category?');">Delete</a>
                         </td>
                     </tr>
                 }
             }
         </tbody>
     </table>
-     
+
 </div>

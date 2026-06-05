@@ -1,0 +1,25 @@
+﻿@using MySpend.Models.Entities
+@{
+    ViewData["Title"] = "Create / Edit Category";
+}
+
+@model Category
+
+<div class="text-center">
+    <h1 class="display-4">Create or edit category</h1>
+    <a asp-controller="Category" asp-action="Categories" class="btn btn-primary">Overview (Categories)</a>
+</div>
+
+
+
+<form asp-action="CreateEditCategories" asp-controller="Category" method="post">
+
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+    <input hidden asp-for="Id" />
+
+    <label>Name</label>
+    <input class="form-control" type="text" placeholder="Add a category" asp-for="Name" />
+
+    <button class="btn btn-outline-primary mt-4" type="submit">submit</button>
+</form>

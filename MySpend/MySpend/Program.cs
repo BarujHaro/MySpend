@@ -28,6 +28,7 @@ namespace MySpend
             });
 
             builder.Services.AddScoped<ExpenseService>();
+            builder.Services.AddScoped<CategoryService>();
             // DB CONTEXT (PostgreSQL)
             builder.Services.AddDbContext<MySpendDbContext>(options =>
                 options.UseNpgsql(
