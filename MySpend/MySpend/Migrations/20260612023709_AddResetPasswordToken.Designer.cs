@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MySpend.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MySpend.Migrations
 {
     [DbContext(typeof(MySpendDbContext))]
-    partial class MySpendDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260612023709_AddResetPasswordToken")]
+    partial class AddResetPasswordToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,7 +58,7 @@ namespace MySpend.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTimeOffset?>("Date")
+                    b.Property<DateTime?>("Date")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
@@ -89,15 +92,6 @@ namespace MySpend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("EmailToken")
-                        .HasColumnType("text");
-
-                    b.Property<DateTimeOffset?>("EmailTokenExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -109,7 +103,7 @@ namespace MySpend.Migrations
                     b.Property<string>("ResetToken")
                         .HasColumnType("text");
 
-                    b.Property<DateTimeOffset?>("ResetTokenExpiresAt")
+                    b.Property<DateTime?>("ResetTokenExpiration")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");

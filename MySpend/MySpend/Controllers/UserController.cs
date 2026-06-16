@@ -1,16 +1,20 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using MySpend.Data;
 using MySpend.Models.Entities;
 using MySpend.Models.ViewModels;
-using MySpend.Support;
-using Microsoft.AspNetCore.RateLimiting;
+using MySpend.Service;
+using System;
+using System.Net;
+using System.Net.Mail;
 
 namespace MySpend.Controllers
 {
     public class UserController : Controller
     {
-
+ 
         /*
          The `_context` is the direct bridge between your C# code and your SQL Server database. 
         It's an instance of something called Entity Framework Core (an ORM).
@@ -19,16 +23,26 @@ namespace MySpend.Controllers
          */
         private readonly MySpendDbContext _context;
 
+        private readonly UserService _userService;
+        private readonly EmailService _emailService;
 
-        public UserController(MySpendDbContext context)
+        public UserController(MySpendDbContext context, EmailService emailService, UserService userService)
         {
             _context = context;
+            _emailService = emailService;
+            _userService = userService;
         }
 
 
         //Return View() look fot a view with the same name as the function
         //GET
         public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
         {
             return View();
         }
@@ -42,11 +56,72 @@ namespace MySpend.Controllers
             }
             return View();
         }
+        [HttpGet]
+        public IActionResult ResetPassword(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+                return RedirectToAction("Login");
 
+            return View(new ResetPasswordViewModel { Token = token });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError("", "If the email exists, a reset link was sent.");
+                return View();
+            }
+
+            var token = Guid.NewGuid().ToString();
+
+            user.ResetToken = token;
+            user.ResetTokenExpiresAt = DateTimeOffset.UtcNow.AddHours(1);
+            await _context.SaveChangesAsync();
+
+            var resetLink = Url.Action(
+                "ResetPassword",
+                "User",
+                new { token },
+                Request.Scheme
+            ); 
+
+            _emailService.Send(
+                user.Email,
+                "Reset your password",
+                $"Click here to reset your password:\n{resetLink}"
+            );
+
+            TempData["Message"] = "Email to change the password sended.";
+            return RedirectToAction("Login");
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var result = await _userService.ResetPasswordAsync(model.Token, model.Password);
+
+            if (!result)
+            {
+                ModelState.AddModelError("", "Invalid or expired token");
+                return View(model);
+            }
+
+            return RedirectToAction("Login");
+        }
 
         //POST
         [HttpPost] //Only respons to POST requests, a label to tell the program that is going to receive data
-        public IActionResult Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
@@ -66,29 +141,86 @@ namespace MySpend.Controllers
             {
                 Name = model.Name,
                 Email = model.Email,
-                PasswordHash = PasswordHelper.Hash(model.Password)
+                PasswordHash = UserService.HashPassword(model.Password),
+                EmailConfirmed = false
             };
 
-         
+            user.EmailToken = Guid.NewGuid().ToString();
+            user.EmailTokenExpiresAt = DateTimeOffset.UtcNow.AddDays(1);
+
+
             //Add the object to the following/steps of Entity Framework
             _context.Users.Add(user);
+            await _context.SaveChangesAsync();
 
-            //Saves the changes in the sql server
-            _context.SaveChanges();
+            var confirmLink = Url.Action(
+                "ConfirmEmail",
+                "User",
+                new { token = user.EmailToken },
+                Request.Scheme
+            );
 
+            _emailService.Send(
+                  user.Email,
+                  "Confirm your email",
+                  $"Click here to confirm your email: {confirmLink}\n\nThis link expires in 24 hours."
+              );
+
+            TempData["Message"] = "Registration successful! Please check your email to confirm your account.";
             return RedirectToAction("Login");
 
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+            {
+                TempData["Error"] = "Invalid confirmation token";
+                return RedirectToAction("Login");
+            }
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.EmailToken == token);
+
+            if (user == null)
+            {
+                TempData["Error"] = "Invalid confirmation token";
+                return RedirectToAction("Login");
+            }
+
+            if (user.EmailTokenExpiresAt < DateTimeOffset.UtcNow)
+            {
+                TempData["Error"] = "Confirmation link has expired";
+                return RedirectToAction("Login");
+            }
+
+            user.EmailConfirmed = true;
+            user.EmailToken = null;
+            user.EmailTokenExpiresAt = null;
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "Email confirmed successfully! You can now log in.";
+            return RedirectToAction("Login");
+        }
+
+
         [HttpPost]
         [EnableRateLimiting("LoginPolicy")]
-        public IActionResult Login(string email, string password)
+        public async Task<IActionResult> Login(string email, string password)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+            var user = await _userService.AuthenticateAsync(email, password);
 
-            if (user == null || !PasswordHelper.Verify(password, user.PasswordHash))
+            if (user == null)
             {
                 ModelState.AddModelError("", "Email or password are incorrects");
+                return View();
+            }
+
+
+            if (!user.EmailConfirmed)
+            {
+                ModelState.AddModelError("", "Please confirm your email before logging in. Check your inbox.");
                 return View();
             }
 

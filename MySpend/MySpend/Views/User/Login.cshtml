@@ -15,12 +15,27 @@
             <label>Password</label>
             <input type="password" name="password" required />
         </div>
-
-        <button type="submit">Login</button>
+        <div>
+            <a asp-controller="User" asp-action="ForgotPassword">Forgot password?</a>
+            <button type="submit">Login</button>
+        </div>
     </form>
 </div>
 
 @if (!ViewData.ModelState.IsValid)
 {
     <p style="color:red">@ViewData.ModelState.Values.First().Errors.First().ErrorMessage</p>
+}
+
+@if (TempData["Message"] != null)
+{
+    <div id="flash-message" style="
+            background:#d4edda;
+            color:#155724;
+            padding:10px;
+            margin-bottom:15px;
+            border-radius:5px;
+        ">
+        @TempData["Message"]
+    </div>
 }

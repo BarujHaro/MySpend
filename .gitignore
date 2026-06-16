@@ -8,6 +8,11 @@
 /MySpend/MySpend/obj/
 /MySpend/MySpend/obj
 
+/MySpend/MySpend/appsettings.json
+./MySpend/MySpend/appsettings.json
+./MySpend/MySpend/appsettings.Development.json
+/MySpend/MySpend/appsettings.Development.json
+
 .vs/
 ./MySpend/vs/
 .idea/

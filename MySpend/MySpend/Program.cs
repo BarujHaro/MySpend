@@ -27,15 +27,17 @@ namespace MySpend
                 options.Cookie.IsEssential = true;
             });
 
+            builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<ExpenseService>();
             builder.Services.AddScoped<CategoryService>();
+            builder.Services.AddScoped<EmailService>();
             // DB CONTEXT (PostgreSQL)
             builder.Services.AddDbContext<MySpendDbContext>(options =>
                 options.UseNpgsql(
                     builder.Configuration.GetConnectionString("DefaultConnection")
                 )
             );
-
+            builder.Services.AddTransient<EmailService>();
             //Rate limiting configuration
             builder.Services.AddRateLimiter(options =>
             {
